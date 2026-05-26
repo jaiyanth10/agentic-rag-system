@@ -8,7 +8,10 @@ An intelligent document search system that mimics how AI coding assistants like 
 ![PydanticAI](https://img.shields.io/badge/PydanticAI-0.8+-orange.svg)
 
 ---
+## UI Preview 
+<img width="2502" height="1366" alt="image" src="https://github.com/user-attachments/assets/a2e3dc89-1255-4deb-9328-50d0ab196bb5" />
 
+---
 ## 🎯 What Is This?
 
 Ever wondered how Claude, Cursor, or GitHub Copilot **understand** your entire codebase? They don't read every file at once (impossible due to token limits). Instead, they use **Agentic RAG** - an AI agent that intelligently decides:
