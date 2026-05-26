@@ -365,15 +365,7 @@ NOTES_DIR.glob("**/*.py")  # Python files recursively
 ```
 
 ---
-
-## 🤝 Contributing
-
-### Adding Documents
-1. Add `.md` files to `notes/` directory
-2. Use clear headings and structure
-3. No special formatting needed!
-
-### Improving the System
+## Future Enhancements
 Ideas for contributions:
 - [ ] Add PDF support (extract text)
 - [ ] Implement caching (avoid re-searching)
@@ -414,51 +406,6 @@ Ideas for contributions:
 - [LangChain Agents](https://python.langchain.com/docs/modules/agents/)
 - [UV Package Manager](https://github.com/astral-sh/uv)
 
-### Similar Projects:
-- [LangChain](https://github.com/langchain-ai/langchain) - Full-featured AI framework
-- [LlamaIndex](https://github.com/run-llama/llama_index) - Data framework for LLMs
-- [AutoGPT](https://github.com/Significant-Gravitas/AutoGPT) - Autonomous AI agent
 
----
-
-## 📝 License
-
-MIT License - feel free to use for learning or commercial projects!
-
----
-
-## 🙏 Acknowledgments
-
-- **Inspiration**: Claude (Anthropic) and Cursor (Anysphere) for showing what's possible
-- **Framework**: PydanticAI team for excellent agent framework
-- **UI**: Gradio team for making ML UIs ridiculously easy
-
----
-
-## 🎯 Next Steps
-
-1. ✅ Star this repo if you found it useful!
-2. ✅ Try it with your own documents
-3. ✅ Share your experience on LinkedIn/Twitter
-4. ✅ Contribute improvements via PR
-
----
-
-## 📧 Contact
-
-**Questions?** Open an issue or reach out:
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [Your Name](https://linkedin.com/in/yourprofile)
-- Twitter: [@yourhandle](https://twitter.com/yourhandle)
-
----
-
-## 🌟 Show Your Support
-
-If this project helped you understand AI agents or build something cool:
-- ⭐ Star the repository
-- 🐦 Tweet about it with `#AgenticRAG`
-- 💼 Share on LinkedIn
-- 🔗 Link to it in your projects
 
 **Built with curiosity and code** 🚀
