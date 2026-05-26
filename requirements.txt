@@ -1,0 +1,23 @@
+# Agentic RAG System - Python Dependencies
+# Install: pip install -r requirements.txt (or use uv: uv pip install -r requirements.txt)
+
+# Core AI Agent Framework
+pydantic-ai==0.8.1
+pydantic==2.13.4
+pydantic-core==2.46.4
+
+# OpenAI API
+openai==2.38.0
+
+# Environment Variables
+python-dotenv==1.2.1
+
+# Web UI Framework
+gradio==4.44.1
+
+# Required for Gradio compatibility
+setuptools>=65.0.0
+
+# Note: Additional dependencies will be installed automatically by pip/uv
+# Total direct dependencies: 7 packages
+# Full environment: ~120+ packages (including sub-dependencies)

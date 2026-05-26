@@ -50,10 +50,10 @@ def query_documents(question: str, progress=gr.Progress()):
         progress(1.0, desc="Complete!")
         
         # Format the answer
-        answer_md = f"## 💡 Answer\n\n{result.output.answer}"
+        answer_md = f"## Answer\n\n{result.output.answer}"
         
         # Format citations
-        citations_md = "## 📚 Sources\n\n"
+        citations_md = "## Sources\n\n"
         if result.output.citations:
             for i, citation in enumerate(result.output.citations, 1):
                 citations_md += f"### {i}. `{citation.file}`\n\n"
@@ -67,26 +67,43 @@ def query_documents(question: str, progress=gr.Progress()):
         usage = result.usage()
         cost = (usage.input_tokens * 0.00000015) + (usage.output_tokens * 0.0000006)
         
-        stats_md = f"""## 📊 Statistics
+        stats_md = f"""## Statistics
 
 | Metric | Value |
 |--------|-------|
-| ⏱️ Time | {elapsed:.2f}s |
-| 🔄 Agent Turns | {usage.requests} |
-| � Input Tokens | {usage.input_tokens:,} |
-| 💭 Output Tokens | {usage.output_tokens:,} |
-| 💰 Estimated Cost | ${cost:.4f} |
+| Time | {elapsed:.2f}s |
+| Agent Turns | {usage.requests} |
+| Input Tokens | {usage.input_tokens:,} |
+| Output Tokens | {usage.output_tokens:,} |
+| Estimated Cost | ${cost:.4f} |
 """
         
-        # Tool visualization would go here
-        # (In a real implementation, we'd intercept tool calls)
-        tool_log = f"✅ Query completed in {elapsed:.2f}s\n"
-        tool_log += f"🔄 Took {usage.requests} agent turns\n"
+        # Extract tool calls using PydanticAI's built-in method
+        tool_calls = []
+        for msg in result.all_messages():
+            if hasattr(msg, 'parts'):
+                for part in msg.parts:
+                    if hasattr(part, 'tool_name') and part.tool_name != 'final_result':
+                        tool_calls.append(part.tool_name)
+        
+        # Format tool log with clean execution order
+        tool_log = "Tool Execution Order:\n\n"
+        if tool_calls:
+            for i, tool in enumerate(tool_calls, 1):
+                tool_log += f"{i}. {tool}\n"
+        else:
+            tool_log += "No tools used\n"
+        
+        tool_log += f"\nCompleted in {elapsed:.2f}s ({usage.requests} agent turns)"
         
         return answer_md, citations_md, stats_md, tool_log
         
     except Exception as e:
-        return f"❌ Error: {str(e)}", "", "", ""
+        error_msg = str(e)
+        # Handle request limit errors with friendly message
+        if "request_limit" in error_msg or "exceed" in error_msg:
+            return "No relevant data found. Please try a different question.", "", "", ""
+        return f"❌ Error: {error_msg}", "", "", ""
 
 
 # ============================================================
@@ -96,15 +113,22 @@ def query_documents(question: str, progress=gr.Progress()):
 def create_ui():
     """Create and configure the Gradio interface."""
     
-    with gr.Blocks(title="Agentic RAG System", theme=gr.themes.Soft()) as demo:
+    # Custom theme with better background
+    custom_theme = gr.themes.Default(
+        primary_hue="blue",
+        neutral_hue="slate",
+    ).set(
+        body_background_fill="*neutral_50",
+        block_background_fill="white",
+    )
+    
+    with gr.Blocks(title="Agentic RAG System", theme=custom_theme) as demo:
         # Header
         gr.Markdown(
             """
-            # 🤖 Agentic RAG System
-            ### Inspired by Claude/Cursor's Context Retrieval Mechanism
+            # Agentic RAG System
             
-            Ask questions about company documentation and get answers with citations!
-            The agent intelligently searches through documents using multiple tools.
+            Ask questions about company documentation and get answers with citations.
             
             ---
             """
@@ -112,7 +136,7 @@ def create_ui():
         
         # Main content area
         with gr.Row():
-            with gr.Column(scale=2):
+            with gr.Column(scale=4):
                 # Question input
                 question_input = gr.Textbox(
                     label="Your Question",
@@ -120,71 +144,45 @@ def create_ui():
                     lines=3
                 )
                 
-                # Action buttons
-                with gr.Row():
-                    submit_btn = gr.Button("🔍 Search", variant="primary", scale=3)
-                    clear_btn = gr.Button("🗑️ Clear", scale=1)
-                
                 # Example questions
                 gr.Examples(
                     examples=[
-                        "Why does our nightly deploy job run at 03:47 UTC specifically?",
+                        "Where does our deployment happen?",
                         "What caused incident #2847?",
-                        "How do I authenticate with the User Service API?",
-                        "What is our system architecture?",
-                        "What are the rate limits for the API?",
                     ],
                     inputs=question_input,
-                    label="Example Questions"
-                )
-            
-            with gr.Column(scale=1):
-                # Info panel
-                gr.Markdown(
-                    """
-                    ### ℹ️ How It Works
-                    
-                    1. **Agent analyzes** your question
-                    2. **Searches** relevant documents
-                    3. **Reads** specific sections
-                    4. **Generates** answer with citations
-                    
-                    ### 🛠️ Tools Available
-                    - `list_files()` - Discover documents
-                    - `grep()` - Search for keywords
-                    - `read_file()` - Read specific content
-                    
-                    ### 📁 Documents
-                    """
+                    label=None,
                 )
                 
-                # List available documents
-                notes_dir = Path(__file__).parent / "notes"
-                if notes_dir.exists():
-                    docs = sorted([f.name for f in notes_dir.glob("*.md")])
-                    docs_list = "\n".join([f"- `{doc}`" for doc in docs])
-                    gr.Markdown(docs_list)
-        
-        # Results area
-        gr.Markdown("---")
-        gr.Markdown("## 📋 Results")
-        
-        with gr.Tabs():
-            with gr.Tab("Answer"):
-                answer_output = gr.Markdown(label="Answer")
+                # Action buttons
+                with gr.Row():
+                    submit_btn = gr.Button("Search", variant="primary", scale=3)
+                    clear_btn = gr.Button("Clear", scale=1)
+                
+                # Results area (scrollable, right below input)
+                gr.Markdown("---")
+                
+                with gr.Tabs():
+                    with gr.Tab("Answer"):
+                        answer_output = gr.Markdown(label="Answer")
+                    
+                    with gr.Tab("Citations"):
+                        citations_output = gr.Markdown(label="Sources")
+                    
+                    with gr.Tab("Statistics"):
+                        stats_output = gr.Markdown(label="Usage Stats")
+                    
+                    with gr.Tab("Tool Execution"):
+                        tool_log_output = gr.Textbox(
+                            label="Agent Tool Usage",
+                            lines=8,
+                            interactive=False,
+                            show_label=False
+                        )
             
-            with gr.Tab("Citations"):
-                citations_output = gr.Markdown(label="Sources")
-            
-            with gr.Tab("Statistics"):
-                stats_output = gr.Markdown(label="Usage Stats")
-            
-            with gr.Tab("Tool Log"):
-                tool_log_output = gr.Textbox(
-                    label="Tool Calls",
-                    lines=10,
-                    interactive=False
-                )
+            with gr.Column(scale=1):
+                # Empty column for spacing
+                pass
         
         # Connect buttons to function
         submit_btn.click(
@@ -203,11 +201,8 @@ def create_ui():
             """
             ---
             
-            **💡 Tip:** The agent uses multi-step reasoning - it decides which tools to use and when!
-            
-            **🔒 Privacy:** Your API key is loaded from `.env` and never exposed.
-            
-            **💰 Cost:** ~$0.0001-0.001 per query (very cheap with GPT-4.1-nano)
+            **Note:** The agent uses multi-step reasoning to decide which tools to use.
+            Estimated cost: ~$0.0001-0.001 per query.
             """
         )
     
