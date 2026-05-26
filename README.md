@@ -5,7 +5,6 @@
 An intelligent document search system that mimics how AI coding assistants like Claude and Cursor understand your codebase. Built with PydanticAI, featuring an interactive Gradio UI and production-ready architecture.
 
 ![Python](https://img.shields.io/badge/python-3.9+-blue.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![PydanticAI](https://img.shields.io/badge/PydanticAI-0.8+-orange.svg)
 
 ---
