@@ -1,4 +1,4 @@
-# 🤖 Agentic RAG System
+# Agentic RAG System
 
 **Reverse-engineering Claude/Cursor's Context Retrieval Mechanism**
 
